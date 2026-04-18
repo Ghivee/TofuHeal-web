@@ -1,5 +1,3 @@
-lucide.createIcons();
-
 // --- MODULE 1: UI & DOM ELEMENTS ---
 const dashboardView = document.getElementById('dashboard-view');
 const cameraView = document.getElementById('camera-view');
@@ -10,6 +8,15 @@ const btnCapture = document.getElementById('btn-capture');
 
 let streamData = null;
 let isProcessing = false;
+
+// Initialize History
+document.addEventListener('DOMContentLoaded', () => {
+    loadHistory();
+    lucide.createIcons();
+});
+
+const btnClearHistory = document.getElementById('btn-clear-history');
+btnClearHistory.addEventListener('click', clearHistory);
 
 function showToast(message) {
     const toast = document.getElementById('error-toast');
@@ -180,9 +187,18 @@ btnCapture.addEventListener('click', () => {
     closeCamera();
 });
 
-// --- MODULE 5: SERVER COMMUNICATION (PHP) ---
+// --- MODULE 5: SERVER & LOCAL STORAGE ---
 async function sendDataToServer(rgb, hsv) {
     const phEstimation = document.getElementById('ph-text').innerText;
+    const status = document.getElementById('status-badge').innerText;
+    
+    // Save to LocalStorage (Always works on GitHub Pages)
+    saveToHistory({
+        ph: phEstimation,
+        status: status,
+        date: new Date().toLocaleString('id-ID'),
+        rgb: rgb
+    });
 
     try {
         const response = await fetch('process.php', {
@@ -195,9 +211,52 @@ async function sendDataToServer(rgb, hsv) {
             })
         });
         const result = await response.json();
-        console.log("Response dari Server:", result);
     } catch (err) {
-        console.warn("Gagal mengirim data ke server (Mungkin PHP belum aktif):", err);
+        console.warn("PHP Server tidak terdeteksi (Normal untuk GitHub Pages). Data disimpan di lokal.");
+    }
+}
+
+function saveToHistory(item) {
+    let history = JSON.parse(localStorage.getItem('tofu_history') || '[]');
+    history.unshift(item); // Add to beginning
+    history = history.slice(0, 5); // Keep last 5
+    localStorage.setItem('tofu_history', JSON.stringify(history));
+    loadHistory();
+}
+
+function loadHistory() {
+    const historyList = document.getElementById('history-list');
+    const history = JSON.parse(localStorage.getItem('tofu_history') || '[]');
+    
+    if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">Belum ada riwayat pemindaian</div>';
+        return;
+    }
+
+    historyList.innerHTML = history.map(item => `
+        <div class="history-item">
+            <div class="history-info">
+                <span class="history-ph">${item.ph}</span>
+                <span class="history-date">${item.date}</span>
+            </div>
+            <span class="history-badge ${getBadgeClass(item.status)}">${item.status}</span>
+        </div>
+    `).join('');
+    
+    lucide.createIcons();
+}
+
+function getBadgeClass(status) {
+    if (status === 'NOMINAL') return 'badge-normal';
+    if (status === 'WARNING') return 'badge-warning';
+    if (status === 'CRITICAL') return 'badge-critical';
+    return '';
+}
+
+function clearHistory() {
+    if (confirm('Hapus semua riwayat?')) {
+        localStorage.removeItem('tofu_history');
+        loadHistory();
     }
 }
 
