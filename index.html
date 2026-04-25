@@ -135,10 +135,14 @@
                         <i data-lucide="chevron-left" style="width:28px;height:28px;"></i>
                     </button>
                     <span class="cam-title">Sejajarkan Sensor</span>
-                    <button id="btn-switch-camera" class="round-btn" style="visibility:hidden;">
-                        <!-- Hide switch camera to keep UI clean, we use environment facingMode by default -->
-                        <i data-lucide="refresh-ccw"></i>
-                    </button>
+                    <div style="display:flex; gap:12px;">
+                        <button id="btn-toggle-flash" class="round-btn">
+                            <i data-lucide="zap"></i>
+                        </button>
+                        <button id="btn-switch-camera" class="round-btn">
+                            <i data-lucide="refresh-ccw"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <video id="camera-feed" class="video-feed" autoplay playsinline></video>

@@ -37,33 +37,89 @@ function toggleView(showEl, hideEl) {
     }, 100);
 }
 
-btnOpenCamera.addEventListener('click', async () => {
-    toggleView(cameraView, dashboardView);
+let currentFacingMode = 'environment';
+let isFlashOn = false;
 
+async function openCamera(facingMode = 'environment') {
+    if (streamData) streamData.getTracks().forEach(track => track.stop());
+    
     try {
         streamData = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+            video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
             audio: false
         });
         videoFeed.srcObject = streamData;
-        
+
         videoFeed.onloadedmetadata = () => {
             updateSvgStencil();
             setupResizeObserver();
         };
 
+        currentFacingMode = facingMode;
+        isFlashOn = false;
+        const btnFlash = document.getElementById('btn-toggle-flash');
+        if(btnFlash) {
+            btnFlash.style.backgroundColor = 'rgba(15, 23, 42, 0.4)';
+            btnFlash.style.color = 'white';
+        }
+
     } catch (err) {
         showToast("Akses kamera ditolak. Pastikan memberikan izin kamera pada browser.");
         closeCamera();
     }
+}
+
+btnOpenCamera.addEventListener('click', () => {
+    toggleView(cameraView, dashboardView);
+    openCamera('environment');
 });
+
+const btnSwitchCamera = document.getElementById('btn-switch-camera');
+if (btnSwitchCamera) {
+    btnSwitchCamera.addEventListener('click', () => {
+        const newMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+        openCamera(newMode);
+    });
+}
+
+const btnToggleFlash = document.getElementById('btn-toggle-flash');
+if (btnToggleFlash) {
+    btnToggleFlash.addEventListener('click', async () => {
+        if (!streamData) return;
+        const track = streamData.getVideoTracks()[0];
+        
+        try {
+            const capabilities = track.getCapabilities();
+            if (!capabilities.torch) {
+                showToast("Kamera ini tidak mendukung fitur lampu senter di browser.");
+                return;
+            }
+
+            isFlashOn = !isFlashOn;
+            await track.applyConstraints({
+                advanced: [{ torch: isFlashOn }]
+            });
+            
+            if(isFlashOn) {
+                btnToggleFlash.style.backgroundColor = 'white';
+                btnToggleFlash.style.color = '#f59e0b';
+            } else {
+                btnToggleFlash.style.backgroundColor = 'rgba(15, 23, 42, 0.4)';
+                btnToggleFlash.style.color = 'white';
+            }
+        } catch (err) {
+            showToast("Gagal menyalakan senter. Akses diblokir sistem.");
+            isFlashOn = false;
+        }
+    });
+}
 
 btnCloseCamera.addEventListener('click', closeCamera);
 
 function closeCamera() {
     if (streamData) streamData.getTracks().forEach(track => track.stop());
     toggleView(dashboardView, cameraView);
-    if(resizeObserver) resizeObserver.disconnect();
+    if (resizeObserver) resizeObserver.disconnect();
     isProcessing = false;
 }
 
@@ -71,62 +127,62 @@ function closeCamera() {
 function updateSvgStencil() {
     const wrapper = document.querySelector('.camera-wrapper');
     if (!wrapper) return;
-    
+
     const w = wrapper.clientWidth;
     const h = wrapper.clientHeight;
-    
+
     // Define the maximum allowed dimensions for the 4:3 box.
     // On desktop (landscape), width is huge, so we cap it relative to height.
     // On mobile (portrait), width is small, so we cap it relative to width.
     const maxAllowedW = w * 0.85; // 85% of screen width max
     const maxAllowedH = h * 0.60; // 60% of screen height max (leaves room for huge button at bottom)
-    
+
     // Start by assuming width determines the size
     let box43_W = maxAllowedW;
-    let box43_H = box43_W * (3/4);
-    
+    let box43_H = box43_W * (3 / 4);
+
     // If that height is too tall for the screen, switch to height-constrained sizing
     if (box43_H > maxAllowedH) {
         box43_H = maxAllowedH;
-        box43_W = box43_H * (4/3);
+        box43_W = box43_H * (4 / 3);
     }
-    
+
     // Safety check max limit for super wide screens
     if (box43_W > 600) {
         box43_W = 600;
-        box43_H = box43_W * (3/4);
+        box43_H = box43_W * (3 / 4);
     }
-    
+
     box43_W = Math.floor(box43_W);
     box43_H = Math.floor(box43_H);
-    
+
     // Inner sensor box is STRICTLY 3:2. 
     // We make it occupy about half of the 4:3 box width.
     let box32_W = Math.floor(box43_W * 0.5);
-    let box32_H = Math.floor(box32_W * (2/3));
-    
+    let box32_H = Math.floor(box32_W * (2 / 3));
+
     const cX = Math.floor(w / 2);
     const cY = Math.floor(h / 2);
-    
+
     const setRect = (id, width, height) => {
         const el = document.getElementById(id);
-        if(!el) return;
-        el.setAttribute('x', cX - width/2);
-        el.setAttribute('y', cY - height/2);
+        if (!el) return;
+        el.setAttribute('x', cX - width / 2);
+        el.setAttribute('y', cY - height / 2);
         el.setAttribute('width', width);
         el.setAttribute('height', height);
     };
-    
+
     setRect('mask-rect-43', box43_W, box43_H);
     setRect('outline-43', box43_W, box43_H);
     setRect('outline-32', box32_W, box32_H);
-    
+
     const t43 = document.getElementById('text-43');
-    if(t43) { t43.setAttribute('x', cX); t43.setAttribute('y', (cY - box43_H/2) + 24); }
-    
+    if (t43) { t43.setAttribute('x', cX); t43.setAttribute('y', (cY - box43_H / 2) + 24); }
+
     const t32 = document.getElementById('text-32');
-    if(t32) { t32.setAttribute('x', cX); t32.setAttribute('y', (cY - box32_H/2) + 20); }
-    
+    if (t32) { t32.setAttribute('x', cX); t32.setAttribute('y', (cY - box32_H / 2) + 20); }
+
     window.boxParams = { box43_W, box43_H, box32_W, box32_H, cX, cY, w, h };
 }
 
@@ -164,7 +220,7 @@ btnCapture.addEventListener('click', () => {
     if (!videoFeed.videoWidth || isProcessing) return;
     isProcessing = true;
 
-    if(!window.boxParams) {
+    if (!window.boxParams) {
         showToast("Mohon tunggu kamera fokus.");
         isProcessing = false;
         return;
@@ -174,7 +230,7 @@ btnCapture.addEventListener('click', () => {
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    canvas.width = w; 
+    canvas.width = w;
     canvas.height = h;
 
     const vW = videoFeed.videoWidth;
@@ -189,7 +245,7 @@ btnCapture.addEventListener('click', () => {
 
     const left43 = cX - box43_W / 2;
     const top43 = cY - box43_H / 2;
-    
+
     // Bounds Check to prevent reading outside canvas
     if (left43 < 0 || top43 < 0 || left43 + box43_W > w || top43 + box43_H > h) {
         showToast("Resolusi kamera bermasalah. Coba rotasi HP Anda.");
@@ -211,8 +267,8 @@ btnCapture.addEventListener('click', () => {
         for (let x = 0; x < box43_W; x++) {
             const i = (y * box43_W + x) * 4;
             const r = imgData[i];
-            const g = imgData[i+1];
-            const b = imgData[i+2];
+            const g = imgData[i + 1];
+            const b = imgData[i + 2];
 
             const isInside32 = (x >= left32_local && x <= right32_local && y >= top32_local && y <= bottom32_local);
 
@@ -225,24 +281,24 @@ btnCapture.addEventListener('click', () => {
     }
 
     const getStats = (pixelArr) => {
-        if(pixelArr.length === 0) return { r: 1, g: 1, b: 1, noise: 0 };
+        if (pixelArr.length === 0) return { r: 1, g: 1, b: 1, noise: 0 };
         let sumR = 0, sumG = 0, sumB = 0;
-        for(let p of pixelArr) { sumR += p.r; sumG += p.g; sumB += p.b; }
+        for (let p of pixelArr) { sumR += p.r; sumG += p.g; sumB += p.b; }
         const count = pixelArr.length;
-        const mean = { r: sumR/count, g: sumG/count, b: sumB/count };
-        
-        let vr=0, vg=0, vb=0;
-        for(let p of pixelArr) { 
-            vr += Math.pow(p.r - mean.r, 2); 
-            vg += Math.pow(p.g - mean.g, 2); 
-            vb += Math.pow(p.b - mean.b, 2); 
+        const mean = { r: sumR / count, g: sumG / count, b: sumB / count };
+
+        let vr = 0, vg = 0, vb = 0;
+        for (let p of pixelArr) {
+            vr += Math.pow(p.r - mean.r, 2);
+            vg += Math.pow(p.g - mean.g, 2);
+            vb += Math.pow(p.b - mean.b, 2);
         }
-        const noise = Math.sqrt((vr+vg+vb) / (count*3));
-        return { 
-            r: Math.round(mean.r), 
-            g: Math.round(mean.g), 
-            b: Math.round(mean.b), 
-            noise: noise 
+        const noise = Math.sqrt((vr + vg + vb) / (count * 3));
+        return {
+            r: Math.round(mean.r),
+            g: Math.round(mean.g),
+            b: Math.round(mean.b),
+            noise: noise
         };
     };
 
@@ -250,7 +306,7 @@ btnCapture.addEventListener('click', () => {
     const sensorStats = getStats(sensorPixels);
 
     // Error Handling
-    const maxAllowedNoise = 50; 
+    const maxAllowedNoise = 50;
     if (whiteStats.noise > maxAllowedNoise || sensorStats.noise > maxAllowedNoise) {
         showToast("PENYEJAJARAN GAGAL: Objek tidak sejajar. Terdapat kebocoran objek luar di area stensil.");
         isProcessing = false;
@@ -286,7 +342,7 @@ btnCapture.addEventListener('click', () => {
         showToast("ANALISIS GAGAL: Warna terlalu pudar mencolok.");
         isProcessing = false; return;
     }
-    
+
     // Critical Tofu-Heal Hue Check
     if (hsv.h > 65 && hsv.h < 330) {
         showToast(`ANALISIS GAGAL: Spektrum terbaca (${hsv.h}°). Diluar spektrum kurkumin.`);
@@ -302,11 +358,11 @@ btnCapture.addEventListener('click', () => {
 async function sendDataToServer(rgb, hsv) {
     const phEstimation = document.getElementById('ph-text').innerText;
     const status = document.getElementById('status-badge').innerText;
-    
+
     saveToHistory({
         ph: phEstimation,
         status: status,
-        date: new Date().toLocaleString('id-ID', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' }),
+        date: new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }),
         rgb: rgb
     });
 
@@ -332,7 +388,7 @@ function saveToHistory(item) {
 function loadHistory() {
     const historyList = document.getElementById('history-list');
     const history = JSON.parse(localStorage.getItem('tofu_history') || '[]');
-    
+
     if (history.length === 0) {
         historyList.innerHTML = `
             <div class="empty-state">
@@ -352,12 +408,12 @@ function loadHistory() {
             <span class="history-badge ${getBadgeClass(item.status)}">${item.status}</span>
         </div>
     `).join('');
-    
+
     lucide.createIcons();
 }
 
 function getBadgeClass(status) {
-    if (status === 'NOMINAL') return 'badge-normal';
+    if (status === 'NORMAL') return 'badge-normal';
     if (status === 'WARNING') return 'badge-warning';
     if (status === 'CRITICAL') return 'badge-critical';
     return '';
@@ -379,7 +435,7 @@ function updateDashboard(rgb, hsv) {
     cleanRgbBox.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
     const dropIcon = cleanRgbBox.querySelector('.drop-icon');
     if (dropIcon) {
-        const luminance = 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
+        const luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
         dropIcon.style.color = luminance > 128 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)';
     }
 
