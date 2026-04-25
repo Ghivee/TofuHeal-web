@@ -156,19 +156,19 @@ function updateSvgStencil() {
     const maxAllowedH = h * 0.60;
 
     let box43_W = maxAllowedW;
-    let box43_H = box43_W * (3 / 4);
+    let box43_H = box43_W * (4 / 3);
 
     if (box43_H > maxAllowedH) {
         box43_H = maxAllowedH;
-        box43_W = box43_H * (4 / 3);
+        box43_W = box43_H * (3 / 4);
     }
-    if (box43_W > 600) { box43_W = 600; box43_H = box43_W * (3 / 4); }
+    if (box43_W > 600) { box43_W = 600; box43_H = box43_W * (4 / 3); }
 
     box43_W = Math.floor(box43_W);
     box43_H = Math.floor(box43_H);
 
     let box32_W = Math.floor(box43_W * 0.5);
-    let box32_H = Math.floor(box32_W * (2 / 3));
+    let box32_H = Math.floor(box32_W * (3 / 2));
 
     const cX = Math.floor(w / 2);
     const cY = Math.floor(h / 2);
@@ -389,7 +389,7 @@ function captureFrameSnapshot() {
     const wMax = Math.max(wMean.r, wMean.g, wMean.b);
     const wMin = Math.min(wMean.r, wMean.g, wMean.b);
     if (wMax - wMin > 55) {
-        return { valid: false, reason: 'KALIBRASI GAGAL: Area putih tidak netral. Gunakan kertas HVS putih polos.' };
+        return { valid: false, reason: 'KALIBRASI GAGAL: Area putih tidak netral.' };
     }
     // Gate 3: tidak boleh terlalu berisik (gerakan / bayangan)
     if (wNoise > 45 || sNoise > 45) {
@@ -612,8 +612,8 @@ function estimatePh(hue, saturation, value) {
     // ── Klasifikasi status ────────────────────────────────────────────────────
     let status, label, description;
     if (ph < 6.5) {
-        status = 'NOMINAL';
-        label = 'Luka Sehat / Normal';
+        status = 'NORMAL';
+        label = 'Luka Sehat';
         description = `pH ${ph.toFixed(1)} (Asam — lingkungan penyembuhan optimal)`;
     } else if (ph <= 7.4) {
         status = 'WARNING';
