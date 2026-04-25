@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/TofuHeal-web/sw.js', { scope: '/TofuHeal-web/' })})}
