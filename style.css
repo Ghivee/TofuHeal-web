@@ -112,6 +112,7 @@ body {
 /* Glassmorphism helpers */
 .glass-panel {
     background: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
@@ -598,6 +599,7 @@ body {
     align-items: center;
     justify-content: center;
     color: white;
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
@@ -655,6 +657,7 @@ body {
 
 .toast-content {
     background: rgba(15, 23, 42, 0.95);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     color: white;
     padding: 16px 20px;
@@ -689,4 +692,15 @@ body {
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cleanup classes for inline styles */
+.logo-leaf-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-icon-chevron {
+    width: 28px;
+    height: 28px;
 }
