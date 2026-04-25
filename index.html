@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tofu-Heal Dashboard</title>
 
-    <!-- Google Fonts for modern elegant typography -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -28,99 +26,104 @@
 
         <!-- DASHBOARD VIEW -->
         <div id="dashboard-view" class="view-layer show dashboard-scroller">
-            <div class="dashboard-content-wrapper">
+            <div class="dashboard-container">
             
-            <header class="app-header">
-                <div class="logo-group">
-                    <div class="logo-icon">🌿</div>
-                    <h1 class="brand-title">Tofu-Heal</h1>
+                <header class="app-header header-area">
+                    <div class="logo-group">
+                        <div class="logo-icon"><i data-lucide="leaf" style="width:20px; height:20px;"></i></div>
+                        <h1 class="brand-title">Tofu-Heal</h1>
+                    </div>
+                </header>
+
+                <div class="action-area">
+                    <div class="action-card">
+                        <div class="card-bg-glow"></div>
+                        <div class="icon-circle">
+                            <i data-lucide="scan" class="icon-camera"></i>
+                        </div>
+                        <h2 class="card-title">Pindai Sensor</h2>
+                        <p class="card-desc">Ambil gambar sensor klinis Anda untuk analisa pH luka otomatis yang presisi.</p>
+                        <button id="btn-open-camera" class="btn-primary">
+                            <i data-lucide="camera" class="btn-icon"></i> Buka Kamera
+                        </button>
+                    </div>
                 </div>
-                <div class="avatar-ph">pH</div>
-            </header>
 
-            <div class="action-card">
-                <div class="card-bg-glow"></div>
-                <div class="icon-circle">
-                    <i data-lucide="scan" class="icon-camera"></i>
-                </div>
-                <h2 class="card-title">Pindai Sensor</h2>
-                <p class="card-desc">Ambil gambar sensor klinis Anda untuk analisa pH luka otomatis</p>
-                <button id="btn-open-camera" class="btn-primary">
-                    <i data-lucide="camera" class="btn-icon"></i> Buka Kamera
-                </button>
-            </div>
+                <div class="status-area">
+                    <div class="analysis-section">
+                        <h3 class="section-title mb-sm">Status Analisis</h3>
 
-            <div class="analysis-section">
-                <h3 class="section-title mb-sm">Status Saat Ini</h3>
-
-                <div id="status-card" class="status-card glass-panel">
-                    <div class="status-info">
-                        <div class="status-label-group">
-                            <div id="status-icon-bg" class="status-icon-bg">
-                                <i id="status-icon" data-lucide="minus"></i>
+                        <div id="status-card" class="status-card glass-panel">
+                            <div class="status-info">
+                                <div class="status-label-group">
+                                    <div id="status-icon-bg" class="status-icon-bg">
+                                        <i id="status-icon" data-lucide="minus"></i>
+                                    </div>
+                                    <div class="status-texts">
+                                        <p>Kondisi Luka</p>
+                                        <p id="global-status-text">Standby / Menunggu</p>
+                                    </div>
+                                </div>
+                                <div id="status-badge" class="status-badge">STANDBY</div>
                             </div>
-                            <div class="status-texts">
-                                <p>Kondisi Luka</p>
-                                <p id="global-status-text">Standby</p>
+
+                            <div class="progress-wrapper">
+                                <div class="progress-track">
+                                    <div id="confidence-bar" class="progress-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-labels">
+                                    <span>Estimasi pH</span>
+                                    <span id="ph-text" class="ph-bold">-</span>
+                                </div>
                             </div>
                         </div>
-                        <div id="status-badge" class="status-badge">MENUNGGU</div>
                     </div>
+                </div>
 
-                    <div class="progress-wrapper">
-                        <div class="progress-track">
-                            <div id="confidence-bar" class="progress-bar" style="width: 0%"></div>
+                <div class="metrics-area">
+                    <div class="metrics-section">
+                        <div class="section-header-flex">
+                            <h3 class="section-title">Metrik Kalibrasi RGB</h3>
+                            <div class="clean-rgb-wrapper" title="Warna RGB Bersih (Setelah Kalibrasi)">
+                                <span class="clean-rgb-label">Preview Warna Asli</span>
+                                <div id="clean-rgb-box" class="clean-rgb-box">
+                                    <i data-lucide="droplet" class="drop-icon"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="progress-labels">
-                            <span>Estimasi pH</span>
-                            <span id="ph-text" class="ph-bold">-</span>
+                        <div class="metrics-grid">
+                            <div class="metric-tile tile-red glass-panel">
+                                <span class="metric-label red-label">R</span>
+                                <span id="tile-r" class="metric-value">0</span>
+                            </div>
+                            <div class="metric-tile tile-green glass-panel">
+                                <span class="metric-label green-label">G</span>
+                                <span id="tile-g" class="metric-value">0</span>
+                            </div>
+                            <div class="metric-tile tile-blue glass-panel">
+                                <span class="metric-label blue-label">B</span>
+                                <span id="tile-b" class="metric-value">0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="metrics-section">
-                <div class="section-header-flex">
-                    <h3 class="section-title">Metrik Kalibrasi</h3>
-                    <div class="clean-rgb-wrapper" title="Warna RGB Bersih (Setelah Kalibrasi)">
-                        <span class="clean-rgb-label">Warna Sensor</span>
-                        <div id="clean-rgb-box" class="clean-rgb-box">
-                            <i data-lucide="droplet" class="drop-icon"></i>
+                <div class="history-area">
+                    <div class="history-section">
+                        <div class="section-header-flex">
+                            <h3 class="section-title">Riwayat Analisis</h3>
+                            <button id="btn-clear-history" class="btn-text">Hapus Semua</button>
+                        </div>
+                        <div id="history-list" class="history-list">
+                            <div class="empty-state">
+                                <i data-lucide="inbox" class="empty-icon"></i>
+                                <p>Belum ada riwayat pemindaian</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="metrics-grid">
-                    <div class="metric-tile tile-red glass-panel">
-                        <span class="metric-label red-label">R</span>
-                        <span id="tile-r" class="metric-value">0</span>
-                    </div>
-                    <div class="metric-tile tile-green glass-panel">
-                        <span class="metric-label green-label">G</span>
-                        <span id="tile-g" class="metric-value">0</span>
-                    </div>
-                    <div class="metric-tile tile-blue glass-panel">
-                        <span class="metric-label blue-label">B</span>
-                        <span id="tile-b" class="metric-value">0</span>
-                    </div>
-                </div>
-            </div>
 
-            <div class="history-section">
-                <div class="section-header-flex">
-                    <h3 class="section-title">Riwayat Analisis</h3>
-                    <button id="btn-clear-history" class="btn-text">Hapus Semua</button>
-                </div>
-                <div id="history-list" class="history-list">
-                    <!-- History goes here -->
-                    <div class="empty-state">
-                        <i data-lucide="inbox" class="empty-icon"></i>
-                        <p>Belum ada riwayat pemindaian</p>
-                    </div>
-                </div>
-                <div class="bottom-spacer"></div>
             </div>
-            
-            </div> <!-- End of dashboard-content-wrapper -->
         </div>
 
         <!-- CAMERA SCANNER VIEW -->
@@ -129,10 +132,11 @@
                 
                 <div class="top-bar-overlay">
                     <button id="btn-close-camera" class="round-btn">
-                        <i data-lucide="chevron-left"></i>
+                        <i data-lucide="chevron-left" style="width:28px;height:28px;"></i>
                     </button>
-                    <span class="cam-title">Pemindai Sensor</span>
-                    <button id="btn-switch-camera" class="round-btn">
+                    <span class="cam-title">Sejajarkan Sensor</span>
+                    <button id="btn-switch-camera" class="round-btn" style="visibility:hidden;">
+                        <!-- Hide switch camera to keep UI clean, we use environment facingMode by default -->
                         <i data-lucide="refresh-ccw"></i>
                     </button>
                 </div>
@@ -144,34 +148,25 @@
                     <defs>
                         <mask id="stencil-mask">
                             <rect width="100%" height="100%" fill="white" />
-                            <rect id="mask-rect-43" rx="8" fill="black" />
+                            <rect id="mask-rect-43" rx="12" fill="black" />
                         </mask>
                     </defs>
-                    <rect width="100%" height="100%" fill="rgba(10, 15, 25, 0.75)" mask="url(#stencil-mask)" />
+                    <rect width="100%" height="100%" fill="rgba(10, 15, 25, 0.85)" mask="url(#stencil-mask)" />
                     <!-- 4:3 Area Outline -->
-                    <rect id="outline-43" rx="8" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" />
+                    <rect id="outline-43" rx="12" fill="none" stroke="white" stroke-width="3" />
                     <!-- 3:2 Sensor Outline -->
-                    <rect id="outline-32" rx="4" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="8 8" />
+                    <rect id="outline-32" rx="6" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="10 6" />
                     
-                    <text id="text-43" fill="rgba(255,255,255,0.8)" font-size="12" font-weight="600" text-anchor="middle" font-family="'Outfit', sans-serif">Kotak Putih 4:3</text>
-                    <text id="text-32" fill="#34d399" font-size="11" font-weight="600" text-anchor="middle" font-family="'Outfit', sans-serif">Sensor Tengah 3:2</text>
+                    <text id="text-43" fill="white" font-size="14" font-weight="700" text-anchor="middle" font-family="'Outfit', sans-serif">AREA PUTIH (4:3)</text>
+                    <text id="text-32" fill="#22c55e" font-size="12" font-weight="700" text-anchor="middle" font-family="'Outfit', sans-serif">SENSOR (3:2)</text>
                 </svg>
 
-                <div class="guide-toast">
-                    <p class="guide-text">Pas-kan batas sensor pada kotak yang tersedia lalu paskan cahaya</p>
+                <div class="capture-wrapper">
+                    <button id="btn-capture" class="btn-primary btn-large">
+                        <i data-lucide="aperture" class="btn-icon-large"></i> POTRET SEKARANG
+                    </button>
                 </div>
 
-                <div class="capture-controls">
-                    <button id="btn-toggle-flash" class="round-btn glow-btn">
-                        <i data-lucide="zap"></i>
-                    </button>
-                    <button id="btn-capture" class="capture-btn glow-btn">
-                        <div class="capture-btn-inner">
-                            <div class="capture-dot"></div>
-                        </div>
-                    </button>
-                    <div style="width: 48px;"></div> <!-- Spacer -->
-                </div>
             </div>
         </div>
     </div>
