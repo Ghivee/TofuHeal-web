@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { Camera, RefreshCcw, Zap, ZapOff, AlertCircle, CheckCircle2, Activity, History, Trash2, X, Maximize2, LayoutDashboard, Settings } from 'lucide-react';
 import { calculateBlur, rgbToHsv, applyWhiteBalance, autoTrackRegions } from './utils/vision';
 import { supabase } from './lib/supabase';
@@ -109,6 +110,29 @@ const App = () => {
 
     // 2. Auto-tracking based on 4:3 and 3:2 spec
     const regions = autoTrackRegions(ctx, canvas.width, canvas.height);
+
+    const getStats = (box) => {
+      // Guard against out of bounds or zero size
+      if (box.w <= 0 || box.h <= 0) return { r: 0, g: 0, b: 0 };
+      const w = Math.max(1, Math.floor(box.w));
+      const h = Math.max(1, Math.floor(box.h));
+      const x = Math.max(0, Math.floor(box.x));
+      const y = Math.max(0, Math.floor(box.y));
+      
+      try {
+        const data = ctx.getImageData(x, y, w, h).data;
+        let r = 0, g = 0, b = 0;
+        const count = data.length / 4;
+        if (count === 0) return { r: 0, g: 0, b: 0 };
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i]; g += data[i+1]; b += data[i+2];
+        }
+        return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
+      } catch (e) {
+        return { r: 0, g: 0, b: 0 };
+      }
+    };
+
     const whiteStats = getStats(regions.whiteBox);
     const sensorStats = getStats(regions.sensorBox);
 
