@@ -20,6 +20,17 @@ const App = () => {
     fetchHistory();
   }, []);
 
+  // Sync stream to video element when view or stream changes
+  useEffect(() => {
+    console.log("Camera sync check:", { view, hasStream: !!cameraStream, hasVideoRef: !!videoRef.current });
+    if (view === 'camera' && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+      videoRef.current.play()
+        .then(() => console.log("Video playback started successfully"))
+        .catch(err => console.error("Video play failed:", err));
+    }
+  }, [view, cameraStream]);
+
   const fetchHistory = async () => {
     try {
       const { data, error } = await supabase
@@ -48,12 +59,16 @@ const App = () => {
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        video: { 
+          facingMode: 'environment', 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        }
       });
       setCameraStream(stream);
-      if (videoRef.current) videoRef.current.srcObject = stream;
       setView('camera');
     } catch (err) {
+      console.error("Camera access error:", err);
       showToast("Izin kamera ditolak. Harap izinkan akses untuk memulai.");
     }
   };
