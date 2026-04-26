@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tofu-Heal Dashboard</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -27,7 +28,7 @@
         <!-- DASHBOARD VIEW -->
         <div id="dashboard-view" class="view-layer show dashboard-scroller">
             <div class="dashboard-container">
-            
+
                 <header class="app-header header-area">
                     <div class="logo-group">
                         <div class="logo-icon"><i data-lucide="leaf" class="logo-leaf-icon"></i></div>
@@ -42,7 +43,8 @@
                             <i data-lucide="scan" class="icon-camera"></i>
                         </div>
                         <h2 class="card-title">Pindai Sensor</h2>
-                        <p class="card-desc">Ambil gambar sensor klinis Anda untuk analisa pH luka otomatis yang presisi.</p>
+                        <p class="card-desc">Ambil gambar sensor klinis Anda untuk analisa pH luka otomatis yang
+                            presisi.</p>
                         <button id="btn-open-camera" class="btn-primary">
                             <i data-lucide="camera" class="btn-icon"></i> Buka Kamera
                         </button>
@@ -129,7 +131,7 @@
         <!-- CAMERA SCANNER VIEW -->
         <div id="camera-view" class="view-layer hide bg-dark">
             <div class="camera-wrapper">
-                
+
                 <div class="top-bar-overlay">
                     <button id="btn-close-camera" class="round-btn" title="Tutup Kamera">
                         <i data-lucide="chevron-left" class="btn-icon-chevron"></i>
@@ -159,15 +161,18 @@
                     <!-- 3:4 Area Outline -->
                     <rect id="outline-43" rx="12" fill="none" stroke="white" stroke-width="3" />
                     <!-- 2:3 Sensor Outline -->
-                    <rect id="outline-32" rx="6" fill="none" stroke="#22c55e" stroke-width="3" stroke-dasharray="10 6" />
-                    
-                    <text id="text-43" fill="white" font-size="14" font-weight="700" text-anchor="middle" font-family="'Outfit', sans-serif">AREA PUTIH (3:4)</text>
-                    <text id="text-32" fill="#22c55e" font-size="12" font-weight="700" text-anchor="middle" font-family="'Outfit', sans-serif">SENSOR (2:3)</text>
+                    <rect id="outline-32" rx="6" fill="none" stroke="#22c55e" stroke-width="3"
+                        stroke-dasharray="10 6" />
+
+                    <text id="text-43" fill="white" font-size="14" font-weight="700" text-anchor="middle"
+                        font-family="'Outfit', sans-serif">AREA PUTIH</text>
+                    <text id="text-32" fill="#22c55e" font-size="12" font-weight="700" text-anchor="middle"
+                        font-family="'Outfit', sans-serif">SENSOR</text>
                 </svg>
 
                 <div class="capture-wrapper">
                     <button id="btn-capture" class="btn-primary btn-large">
-                        <i data-lucide="aperture" class="btn-icon-large"></i> POTRET SEKARANG
+                        <i data-lucide="camera" class="btn-icon-large"></i> POTRET SEKARANG
                     </button>
                 </div>
 
